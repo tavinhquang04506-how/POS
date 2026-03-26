@@ -24,7 +24,7 @@ const OverviewTab = () => {
         const headers = { Authorization: `Bearer ${token}` };
         
         // 1. Fetch Revenue data to calculate today's metrics
-        const revenueRes = await axios.get('http://localhost:3000/api/reports/revenue', { headers });
+        const revenueRes = await axios.get('/api/reports/revenue', { headers });
         const todayStr = new Date().toDateString();
         
         let revenueToday = 0;
@@ -61,8 +61,8 @@ const OverviewTab = () => {
 
         // 2. Fetch Alerts using new inventory APIs
         const [lowStockRes, expiringRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/inventory?lowstock=10', { headers }),
-          axios.get('http://localhost:3000/api/inventory?expiring=7', { headers })
+          axios.get('/api/inventory?lowstock=10', { headers }),
+          axios.get('/api/inventory?expiring=7', { headers })
         ]);
 
         // Using Set to get unique products for low stock across batches

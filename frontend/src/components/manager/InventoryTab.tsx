@@ -10,7 +10,7 @@ const InventoryTab = ({ products: _unused }: { products?: any[] }) => {
 
   useEffect(() => {
     if (token) {
-      axios.get('http://localhost:3000/api/inventory', {
+      axios.get('/api/inventory', {
         headers: { Authorization: `Bearer ${token}` }
       }).then(res => setBatches(res.data)).catch(console.error);
     }

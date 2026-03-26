@@ -9,7 +9,7 @@ const CustomersTab = () => {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/customers', { headers: { Authorization: `Bearer ${token}` }})
+    axios.get('/api/customers', { headers: { Authorization: `Bearer ${token}` }})
       .then(res => setCustomers(res.data));
   }, [token]);
 

@@ -17,27 +17,8 @@ import { authenticate, authorizeRoles, authorizePermissions } from './middleware
 import path from 'path';
 import fs from 'fs';
 
-let dbUrl = process.env.DATABASE_URL || 'file:./dev.db';
-
-if (process.env.NODE_ENV === 'production') {
-  try {
-    const electronApp = require('electron').app;
-    const userDataPath = electronApp.getPath('userData');
-    const dbPath = path.join(userDataPath, 'dev.db');
-    
-    // Copy the original dev.db to user data if it doesn't exist
-    if (!fs.existsSync(dbPath)) {
-      const originalDbPath = path.join(__dirname, '../../dev.db');
-      if (fs.existsSync(originalDbPath)) {
-        fs.copyFileSync(originalDbPath, dbPath);
-      }
-    }
-    dbUrl = `file:${dbPath}`;
-  } catch (err) {
-    console.error('Failed to configure SQLite database for Electron:', err);
-  }
-}
-process.env.DATABASE_URL = dbUrl;
+// Database URL - dùng biến môi trường, không cần Electron
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'file:./dev.db';
 
 export const prisma = new PrismaClient();
 
@@ -111,9 +92,9 @@ app.get('/api/rbac/roles', authenticate, authorizePermissions(['VIEW_STAFF']), r
 app.put('/api/rbac/roles/:id/permissions', authenticate, authorizePermissions(['EDIT_STAFF']), rbacController.updateRolePermissions);
 app.get('/api/rbac/permissions', authenticate, authorizePermissions(['VIEW_STAFF']), rbacController.getAllPermissions);
 
-// Phục vụ frontend (chỉ khi được nén production)
+// Phục vụ frontend static files trong production
 if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../../frontend/dist');
+  const frontendPath = path.join(__dirname, '../../../frontend/dist');
   app.use(express.static(frontendPath));
   app.get('*', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
@@ -121,6 +102,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });

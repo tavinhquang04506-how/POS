@@ -13,7 +13,7 @@ const ReturnHistoryTab = () => {
   const fetchReturns = async (page: number) => {
     if (token) {
       try {
-        const res = await axios.get(`http://localhost:3000/api/returns?page=${page}&limit=10`, {
+        const res = await axios.get(`/api/returns?page=${page}&limit=10`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.data.data) {

@@ -54,27 +54,8 @@ const returnsController = __importStar(require("./controllers/returns.controller
 const rbacController = __importStar(require("./controllers/rbac.controller"));
 const auth_middleware_1 = require("./middleware/auth.middleware");
 const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
-let dbUrl = process.env.DATABASE_URL || 'file:./dev.db';
-if (process.env.NODE_ENV === 'production') {
-    try {
-        const electronApp = require('electron').app;
-        const userDataPath = electronApp.getPath('userData');
-        const dbPath = path_1.default.join(userDataPath, 'dev.db');
-        // Copy the original dev.db to user data if it doesn't exist
-        if (!fs_1.default.existsSync(dbPath)) {
-            const originalDbPath = path_1.default.join(__dirname, '../../dev.db');
-            if (fs_1.default.existsSync(originalDbPath)) {
-                fs_1.default.copyFileSync(originalDbPath, dbPath);
-            }
-        }
-        dbUrl = `file:${dbPath}`;
-    }
-    catch (err) {
-        console.error('Failed to configure SQLite database for Electron:', err);
-    }
-}
-process.env.DATABASE_URL = dbUrl;
+// Database URL - dùng biến môi trường, không cần Electron
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'file:./dev.db';
 exports.prisma = new client_1.PrismaClient();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -133,15 +114,15 @@ app.post('/api/checkout', auth_middleware_1.authenticate, (0, auth_middleware_1.
 app.get('/api/rbac/roles', auth_middleware_1.authenticate, (0, auth_middleware_1.authorizePermissions)(['VIEW_STAFF']), rbacController.getRoles);
 app.put('/api/rbac/roles/:id/permissions', auth_middleware_1.authenticate, (0, auth_middleware_1.authorizePermissions)(['EDIT_STAFF']), rbacController.updateRolePermissions);
 app.get('/api/rbac/permissions', auth_middleware_1.authenticate, (0, auth_middleware_1.authorizePermissions)(['VIEW_STAFF']), rbacController.getAllPermissions);
-// Phục vụ frontend (chỉ khi được nén production)
+// Phục vụ frontend static files trong production
 if (process.env.NODE_ENV === 'production') {
-    const frontendPath = path_1.default.join(__dirname, '../../frontend/dist');
+    const frontendPath = path_1.default.join(__dirname, '../../../frontend/dist');
     app.use(express_1.default.static(frontendPath));
     app.get('*', (req, res) => {
         res.sendFile(path_1.default.join(frontendPath, 'index.html'));
     });
 }
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });

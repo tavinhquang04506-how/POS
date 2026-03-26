@@ -63,11 +63,11 @@ const ManagerDashboard = () => {
   useEffect(() => {
     // Fetch common data that might be needed across tabs
     if (token) {
-      axios.get('http://localhost:3000/api/products', { headers: { Authorization: `Bearer ${token}` } })
+      axios.get('/api/products', { headers: { Authorization: `Bearer ${token}` } })
         .then(res => setProducts(res.data)).catch(console.error);
-      axios.get('http://localhost:3000/api/tiers', { headers: { Authorization: `Bearer ${token}` } })
+      axios.get('/api/tiers', { headers: { Authorization: `Bearer ${token}` } })
         .then(res => setTiers(res.data)).catch(console.error);
-      axios.get('http://localhost:3000/api/inventory/alerts', { headers: { Authorization: `Bearer ${token}` } })
+      axios.get('/api/inventory/alerts', { headers: { Authorization: `Bearer ${token}` } })
         .then(res => setAlerts(res.data)).catch(console.error);
     }
   }, [token, activeTab]); // Refresh slightly on tab change for simplicity
@@ -84,7 +84,7 @@ const ManagerDashboard = () => {
       return setPasswordMsg({ type: 'error', text: 'Mật khẩu xác nhận không khớp!' });
     }
     try {
-      const res = await axios.put('http://localhost:3000/api/auth/change-password',
+      const res = await axios.put('/api/auth/change-password',
         { oldPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -184,7 +184,7 @@ const ManagerDashboard = () => {
           {activeTab === 'products' && <ProductsTab />}
           {activeTab === 'customers' && <CustomersTab />}
           {activeTab === 'tiers' && <TiersTab tiers={tiers} fetchTiers={() => {
-            axios.get('http://localhost:3000/api/tiers', { headers: { Authorization: `Bearer ${token}` } }).then(res => setTiers(res.data))
+            axios.get('/api/tiers', { headers: { Authorization: `Bearer ${token}` } }).then(res => setTiers(res.data))
           }} />}
           {activeTab === 'shifts' && <ShiftsTab />}
           {activeTab === 'returns' && <ReturnHistoryTab />}

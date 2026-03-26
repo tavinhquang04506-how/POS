@@ -16,8 +16,8 @@ const ProductsTab = () => {
   const fetchData = async () => {
     try {
       const [resP, resC] = await Promise.all([
-        axios.get('http://localhost:3000/api/products', { headers: { Authorization: `Bearer ${token}` }}),
-        axios.get('http://localhost:3000/api/categories', { headers: { Authorization: `Bearer ${token}` }})
+        axios.get('/api/products', { headers: { Authorization: `Bearer ${token}` }}),
+        axios.get('/api/categories', { headers: { Authorization: `Bearer ${token}` }})
       ]);
       setProducts(resP.data);
       setCategories(resC.data);
@@ -28,9 +28,9 @@ const ProductsTab = () => {
     e.preventDefault();
     try {
       if (editingProd.MaSP) {
-        await axios.put(`http://localhost:3000/api/products/${editingProd.MaSP}`, editingProd, { headers: { Authorization: `Bearer ${token}` }});
+        await axios.put(`/api/products/${editingProd.MaSP}`, editingProd, { headers: { Authorization: `Bearer ${token}` }});
       } else {
-        await axios.post('http://localhost:3000/api/products', editingProd, { headers: { Authorization: `Bearer ${token}` }});
+        await axios.post('/api/products', editingProd, { headers: { Authorization: `Bearer ${token}` }});
       }
       setEditingProd(null);
       fetchData();
@@ -40,7 +40,7 @@ const ProductsTab = () => {
   const handleDelete = async (id: number) => {
     if(!window.confirm('Xóa sản phẩm này? Chú ý: Cẩn thận dữ liệu hóa đơn cũ bị mồ côi.')) return;
     try {
-      await axios.delete(`http://localhost:3000/api/products/${id}`, { headers: { Authorization: `Bearer ${token}` }});
+      await axios.delete(`/api/products/${id}`, { headers: { Authorization: `Bearer ${token}` }});
       fetchData();
     } catch(e) { alert('Không thể xóa sp (vướng hóa đơn/lô hàng)'); }
   };

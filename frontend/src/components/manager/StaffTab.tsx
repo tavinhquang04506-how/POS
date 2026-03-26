@@ -16,14 +16,14 @@ const StaffTab = () => {
 
   const fetchStaff = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/staff', { headers: { Authorization: `Bearer ${token}` }});
+      const res = await axios.get('/api/staff', { headers: { Authorization: `Bearer ${token}` }});
       setStaff(res.data);
     } catch (e) { console.error(e); }
   };
 
   const fetchRoles = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/rbac/roles', { headers: { Authorization: `Bearer ${token}` }});
+      const res = await axios.get('/api/rbac/roles', { headers: { Authorization: `Bearer ${token}` }});
       setRoles(res.data);
     } catch (e) { console.error(e); }
   };
@@ -32,9 +32,9 @@ const StaffTab = () => {
     e.preventDefault();
     try {
       if (editingStaff.MaNV) {
-        await axios.put(`http://localhost:3000/api/staff/${editingStaff.MaNV}`, editingStaff, { headers: { Authorization: `Bearer ${token}` }});
+        await axios.put(`/api/staff/${editingStaff.MaNV}`, editingStaff, { headers: { Authorization: `Bearer ${token}` }});
       } else {
-        await axios.post('http://localhost:3000/api/staff', editingStaff, { headers: { Authorization: `Bearer ${token}` }});
+        await axios.post('/api/staff', editingStaff, { headers: { Authorization: `Bearer ${token}` }});
       }
       setEditingStaff(null);
       fetchStaff();
@@ -44,7 +44,7 @@ const StaffTab = () => {
   const handleDelete = async (id: number) => {
     if(!window.confirm('Cảnh báo: Nếu NV đã chốt ca/bán hóa đơn, việc xóa có thể crash Data. Nên vô hiệu hóa thay vì Delete. Tiếp tục xóa cứng?')) return;
     try {
-      await axios.delete(`http://localhost:3000/api/staff/${id}`, { headers: { Authorization: `Bearer ${token}` }});
+      await axios.delete(`/api/staff/${id}`, { headers: { Authorization: `Bearer ${token}` }});
       fetchStaff();
     } catch(e) { alert('Không thể xóa nhân viên này!'); }
   };

@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: pos-system
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:./dev.db
+      - key: JWT_SECRET
+        value: pos_super_secret_key_2024
+      - key: PORT
+        value: "3000"

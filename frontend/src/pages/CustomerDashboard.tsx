@@ -11,11 +11,11 @@ const CustomerDashboard = () => {
 
   useEffect(() => {
     if (token) {
-      axios.get('http://localhost:3000/api/customers/me/history', {
+      axios.get('/api/customers/me/history', {
         headers: { Authorization: `Bearer ${token}` }
       }).then(res => setHistory(res.data)).catch(console.error);
 
-      axios.get('http://localhost:3000/api/auth/me', {
+      axios.get('/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       }).then(res => setProfile(res.data)).catch(console.error);
     }

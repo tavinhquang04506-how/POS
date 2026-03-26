@@ -21,7 +21,7 @@ const RevenueTab = () => {
 
   const fetchReports = async (page: number) => {
     try {
-      const res = await axios.get(`http://localhost:3000/api/reports/revenue?page=${page}&limit=10`, { headers: { Authorization: `Bearer ${token}` }});
+      const res = await axios.get(`/api/reports/revenue?page=${page}&limit=10`, { headers: { Authorization: `Bearer ${token}` }});
       setData(res.data);
       setInvoices(res.data.invoices);
       setReturns(res.data.returns);
@@ -30,7 +30,7 @@ const RevenueTab = () => {
         setTotalPages(res.data.pagination.totalPages);
       }
       
-      const resDaily = await axios.get('http://localhost:3000/api/reports/revenue-daily?days=7', { headers: { Authorization: `Bearer ${token}` }});
+      const resDaily = await axios.get('/api/reports/revenue-daily?days=7', { headers: { Authorization: `Bearer ${token}` }});
       setChartData(resDaily.data);
     } catch (e) { console.error(e); }
   };

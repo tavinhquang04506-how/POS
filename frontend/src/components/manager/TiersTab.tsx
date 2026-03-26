@@ -10,9 +10,9 @@ const TiersTab = ({ tiers, fetchTiers }: { tiers: any[], fetchTiers: () => void 
     e.preventDefault();
     try {
       if (editingTier.MaHang) {
-        await axios.put(`http://localhost:3000/api/tiers/${editingTier.MaHang}`, editingTier, { headers: { Authorization: `Bearer ${token}` }});
+        await axios.put(`/api/tiers/${editingTier.MaHang}`, editingTier, { headers: { Authorization: `Bearer ${token}` }});
       } else {
-        await axios.post('http://localhost:3000/api/tiers', editingTier, { headers: { Authorization: `Bearer ${token}` }});
+        await axios.post('/api/tiers', editingTier, { headers: { Authorization: `Bearer ${token}` }});
       }
       setEditingTier(null);
       fetchTiers();
@@ -22,7 +22,7 @@ const TiersTab = ({ tiers, fetchTiers }: { tiers: any[], fetchTiers: () => void 
   const handleDeleteTier = async (id: number) => {
     if(!window.confirm('Bạn có chắc chắn muốn xóa hạng này?')) return;
     try {
-      await axios.delete(`http://localhost:3000/api/tiers/${id}`, { headers: { Authorization: `Bearer ${token}` }});
+      await axios.delete(`/api/tiers/${id}`, { headers: { Authorization: `Bearer ${token}` }});
       fetchTiers();
     } catch(e) { alert('Xóa hạng thất bại'); }
   };

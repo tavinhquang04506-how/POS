@@ -16,8 +16,8 @@ const RoleManagementTab = () => {
   const fetchData = async () => {
     try {
       const [roleRes, permRes] = await Promise.all([
-        axios.get('http://localhost:3000/api/rbac/roles', { headers: { Authorization: `Bearer ${token}` }}),
-        axios.get('http://localhost:3000/api/rbac/permissions', { headers: { Authorization: `Bearer ${token}` }})
+        axios.get('/api/rbac/roles', { headers: { Authorization: `Bearer ${token}` }}),
+        axios.get('/api/rbac/permissions', { headers: { Authorization: `Bearer ${token}` }})
       ]);
       setRoles(roleRes.data);
       setAllPermissions(permRes.data);
@@ -45,7 +45,7 @@ const RoleManagementTab = () => {
 
   const handleSave = async () => {
     try {
-      await axios.put(`http://localhost:3000/api/rbac/roles/${activeRole.MaRole}/permissions`, 
+      await axios.put(`/api/rbac/roles/${activeRole.MaRole}/permissions`, 
         { permissions: localPerms },
         { headers: { Authorization: `Bearer ${token}` }}
       );

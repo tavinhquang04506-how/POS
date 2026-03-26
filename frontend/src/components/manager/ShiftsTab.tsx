@@ -11,7 +11,7 @@ const ShiftsTab = () => {
   useEffect(() => {
     const fetchShifts = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/shifts', { headers: { Authorization: `Bearer ${token}` }});
+        const res = await axios.get('/api/shifts', { headers: { Authorization: `Bearer ${token}` }});
         setShifts(res.data);
       } catch (e) { console.error(e); }
     };

@@ -14,7 +14,7 @@ const Login = () => {
     e.preventDefault();
     try {
       if (activeTab === 'STAFF') {
-        const response = await axios.post('http://localhost:3000/api/auth/login', { username, password });
+        const response = await axios.post('/api/auth/login', { username, password });
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
 
@@ -24,7 +24,7 @@ const Login = () => {
           navigate('/dashboard');
         }
       } else {
-        const response = await axios.post('http://localhost:3000/api/auth/customer-login', { sdt: username, password });
+        const response = await axios.post('/api/auth/customer-login', { sdt: username, password });
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         navigate('/customer');
