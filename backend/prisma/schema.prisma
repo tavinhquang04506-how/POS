@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model NhanVien {
+  MaNV        Int       @id @default(autoincrement())
+  HoTen       String
+  VaiTro      String?
+  MaRole      Int?
+  GroupRole   GroupRole? @relation(fields: [MaRole], references: [MaRole])
+  MatKhau     String
+  CaLamViecs  CaLamViec[]
+  HoaDons     HoaDon[]
+  PhieuTraHangs PhieuTraHang[]
+}
+
+model KhachHang {
+  MaKH        Int       @id @default(autoincrement())
+  HoTen       String
+  SDT         String    @unique
+  MatKhau     String?
+  DiemTichLuy Float     @default(0)
+  HoaDons     HoaDon[]
+}
+
+model LoaiHang {
+  MaLoai      Int       @id @default(autoincrement())
+  TenLoai     String
+  Mota        String?
+  SanPhams    SanPham[]
+}
+
+model SanPham {
+  MaSP        Int       @id @default(autoincrement())
+  TenSP       String
+  DonGiaBan   Float
+  ThueVAT     Float     @default(10) // Tỉ lệ %
+  SoLuongTon  Int       @default(0)
+  
+  MaLoai      Int
+  LoaiHang    LoaiHang  @relation(fields: [MaLoai], references: [MaLoai])
+  
+  LoHangs     LoHang[]
+  ChiTietHoaDons ChiTietHoaDon[]
+  ChiTietPhieuTras ChiTietPhieuTra[]
+}
+
+model LoHang {
+  MaLo        Int       @id @default(autoincrement())
+  SoLuongTon  Int
+  HanSuDung   DateTime
+  GiaNhap     Float
+  NgayNhap    DateTime  @default(now())
+  
+  MaSP        Int
+  SanPham     SanPham   @relation(fields: [MaSP], references: [MaSP])
+}
+
+model HoaDon {
+  MaHD        Int       @id @default(autoincrement())
+  NgayLap     DateTime  @default(now())
+  TongTienHang Float
+  TongThueGTGT Float
+  GiamGia     Float     @default(0)
+  PhuongThucThanhToan String @default("Tiền mặt")
+  
+  MaNV        Int
+  MaKH        Int?
+  MaCa        Int?
+  
+  NhanVien    NhanVien  @relation(fields: [MaNV], references: [MaNV])
+  KhachHang   KhachHang? @relation(fields: [MaKH], references: [MaKH])
+  CaLamViec   CaLamViec? @relation(fields: [MaCa], references: [MaCa])
+  
+  ChiTietHoaDons ChiTietHoaDon[]
+  PhieuTraHangs PhieuTraHang[]
+}
+
+model ChiTietHoaDon {
+  MaCT        Int       @id @default(autoincrement())
+  SoLuong     Int
+  DonGia      Float
+  ThanhTien   Float
+  
+  MaHD        Int
+  MaSP        Int
+  
+  HoaDon      HoaDon    @relation(fields: [MaHD], references: [MaHD])
+  SanPham     SanPham   @relation(fields: [MaSP], references: [MaSP])
+}
+
+model CaLamViec {
+  MaCa           Int       @id @default(autoincrement())
+  MaNV           Int
+  ThoiGianBatDau DateTime  @default(now())
+  ThoiGianKetThuc DateTime?
+  TienDauCa      Float
+  TienCuoiCa     Float?
+  TrangThai      String    @default("Đang mở") // Đang mở, Đã chốt
+  
+  NhanVien       NhanVien  @relation(fields: [MaNV], references: [MaNV])
+  HoaDons        HoaDon[]
+  PhieuTraHangs  PhieuTraHang[]
+}
+
+model HangThanhVien {
+  MaHang          Int       @id @default(autoincrement())
+  TenHang         String
+  MinDiem         Float
+  PhanTramGiamGia Float     @default(0) // Mức giảm %, vd: 5 = 5%
+}
+
+model PhieuTraHang {
+  MaPTH       Int       @id @default(autoincrement())
+  NgayTra     DateTime  @default(now())
+  TongTienHoan Float
+  LyDoTra     String?
+  
+  MaHD        Int
+  MaNV        Int
+  MaCa        Int?
+  
+  HoaDon      HoaDon    @relation(fields: [MaHD], references: [MaHD])
+  NhanVien    NhanVien  @relation(fields: [MaNV], references: [MaNV])
+  CaLamViec   CaLamViec? @relation(fields: [MaCa], references: [MaCa])
+  
+  ChiTietPhieuTras ChiTietPhieuTra[]
+}
+
+model ChiTietPhieuTra {
+  MaCTPT      Int       @id @default(autoincrement())
+  SoLuongTra  Int
+  DonGiaHoan  Float
+  ThanhTien   Float
+  
+  MaPTH       Int
+  MaSP        Int
+  
+  PhieuTraHang PhieuTraHang @relation(fields: [MaPTH], references: [MaPTH])
+  SanPham      SanPham      @relation(fields: [MaSP], references: [MaSP])
+}
+
+model GroupRole {
+  MaRole      Int       @id @default(autoincrement())
+  TenRole     String    @unique
+  MoTa        String?
+  NhanViens   NhanVien[]
+  Role_Permissions Role_Permission[]
+}
+
+model Permission {
+  MaQuyen     Int       @id @default(autoincrement())
+  TenQuyen    String    @unique
+  MoTa        String?
+  Role_Permissions Role_Permission[]
+}
+
+model Role_Permission {
+  MaRole      Int
+  MaQuyen     Int
+  GroupRole   GroupRole @relation(fields: [MaRole], references: [MaRole], onDelete: Cascade)
+  Permission  Permission @relation(fields: [MaQuyen], references: [MaQuyen], onDelete: Cascade)
+
+  @@id([MaRole, MaQuyen])
+}
