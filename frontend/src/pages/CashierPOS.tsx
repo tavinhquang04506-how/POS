@@ -27,6 +27,13 @@ const CashierPOS = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [error, setError] = useState('');
   
+  // Product Search State
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
   // Custom & Payment State
   const [phone, setPhone] = useState('');
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -64,7 +71,26 @@ const CashierPOS = () => {
 
   useEffect(() => {
     checkActiveShift();
+    fetchAllProducts();
   }, []);
+
+  // Close suggestions dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const fetchAllProducts = async () => {
+    try {
+      const res = await axios.get('/api/products', { headers: { Authorization: `Bearer ${token}` } });
+      setAllProducts(res.data);
+    } catch (err) { console.error('Failed to fetch products'); }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -124,9 +150,65 @@ const CashierPOS = () => {
     setIsRegistering(false);
   };
 
+  const addProductToCart = (product: any) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.MaSP === product.MaSP);
+      if (existing) {
+        return prev.map(item => item.MaSP === product.MaSP ? { ...item, SoLuong: item.SoLuong + 1 } : item);
+      }
+      return [...prev, {
+        MaSP: product.MaSP,
+        TenSP: product.TenSP,
+        DonGia: product.DonGiaBan || product.DonGia,
+        SoLuong: 1,
+        ThueVAT: product.ThueVAT
+      }];
+    });
+  };
+
+  const handleSearchInput = (value: string) => {
+    setBarcode(value);
+    setSelectedIndex(-1);
+    if (value.trim().length > 0) {
+      const query = value.toLowerCase();
+      const filtered = allProducts.filter(p =>
+        p.TenSP.toLowerCase().includes(query) || String(p.MaSP).includes(query)
+      ).slice(0, 8);
+      setSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSelectSuggestion = (product: any) => {
+    addProductToCart(product);
+    setBarcode('');
+    setSuggestions([]);
+    setShowSuggestions(false);
+    setSelectedIndex(-1);
+    barcodeInputRef.current?.focus();
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
+    } else if (e.key === 'Enter' && selectedIndex >= 0) {
+      e.preventDefault();
+      handleSelectSuggestion(suggestions[selectedIndex]);
+    }
+  };
+
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setShowSuggestions(false);
     const trimmed = barcode.trim();
     if (!trimmed) {
       setBarcode('');
@@ -138,19 +220,7 @@ const CashierPOS = () => {
       const product = res.data;
       if (Array.isArray(product) || !product.MaSP) throw new Error('Barcode không tồn tại hoặc lỗi dữ liệu.');
 
-      setCart(prev => {
-        const existing = prev.find(item => item.MaSP === product.MaSP);
-        if (existing) {
-          return prev.map(item => item.MaSP === product.MaSP ? { ...item, SoLuong: item.SoLuong + 1 } : item);
-        }
-        return [...prev, {
-          MaSP: product.MaSP,
-          TenSP: product.TenSP,
-          DonGia: product.DonGiaBan,
-          SoLuong: 1,
-          ThueVAT: product.ThueVAT
-        }];
-      });
+      addProductToCart(product);
       setBarcode('');
     } catch (err: any) {
       setError(err.response?.data?.error || err.message);
@@ -546,15 +616,45 @@ const CashierPOS = () => {
         <div className="flex-1 flex overflow-hidden">
           {/* Left: Cart */}
           <div className="w-2/3 flex flex-col p-6 space-y-6 h-full bg-slate-50/50">
-            <form onSubmit={handleScan} className="flex relative group">
-              <Search className="absolute left-4 top-5 h-6 w-6 text-indigo-400 pointer-events-none" />
-              <input 
-                ref={barcodeInputRef} type="text" value={barcode} onChange={(e) => setBarcode(e.target.value)}
-                className="w-full pl-14 pr-32 py-5 text-xl bg-white border-2 border-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-slate-800"
-                placeholder="Quét mã vạch (VD: 89310001)..." autoFocus
-              />
-              <button type="submit" className="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white px-8 rounded-xl font-bold hover:bg-indigo-700">Thêm</button>
-            </form>
+            <div className="relative" ref={suggestionsRef}>
+              <form onSubmit={handleScan} className="flex relative group">
+                <Search className="absolute left-4 top-5 h-6 w-6 text-indigo-400 pointer-events-none" />
+                <input 
+                  ref={barcodeInputRef} type="text" value={barcode}
+                  onChange={(e) => handleSearchInput(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
+                  onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
+                  className="w-full pl-14 pr-32 py-5 text-xl bg-white border-2 border-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-slate-800"
+                  placeholder="Tìm sản phẩm theo tên hoặc mã..." autoFocus
+                />
+                <button type="submit" className="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white px-8 rounded-xl font-bold hover:bg-indigo-700">Thêm</button>
+              </form>
+              {/* Product Suggestions Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1 bg-white border-2 border-indigo-100 rounded-2xl shadow-2xl shadow-indigo-500/10 z-50 overflow-hidden">
+                  {suggestions.map((product, idx) => (
+                    <button
+                      key={product.MaSP}
+                      onClick={() => handleSelectSuggestion(product)}
+                      className={`w-full flex items-center justify-between px-5 py-3.5 text-left transition-all ${
+                        idx === selectedIndex
+                          ? 'bg-indigo-50 border-l-4 border-indigo-500'
+                          : 'hover:bg-slate-50 border-l-4 border-transparent'
+                      } ${idx < suggestions.length - 1 ? 'border-b border-slate-100' : ''}`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-indigo-100 text-indigo-600 font-bold text-xs px-2.5 py-1 rounded-lg">#{product.MaSP}</div>
+                        <span className="font-bold text-slate-800 text-base">{product.TenSP}</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <span className="text-sm text-slate-400">Tồn: {product.SoLuongTon}</span>
+                        <span className="font-bold text-indigo-600 text-base">{Number(product.DonGiaBan).toLocaleString()} ₫</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             {error && <div className="text-red-500 font-medium px-4">{error}</div>}
 
             <div className="flex-1 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden flex flex-col">
