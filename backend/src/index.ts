@@ -94,7 +94,7 @@ app.get('/api/rbac/permissions', authenticate, authorizePermissions(['VIEW_STAFF
 
 // Phục vụ frontend static files trong production
 if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../../../frontend/dist');
+  const frontendPath = path.join(__dirname, '../../frontend/dist');
   app.use(express.static(frontendPath));
   app.get('*', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));

@@ -8,7 +8,7 @@
     "build:backend": "cd backend && npx tsc",
     "prisma:setup": "cd backend && npx prisma generate && npx prisma db push && npx prisma db seed",
     "build": "npm run install:all && npm run build:frontend && npm run build:backend && npm run prisma:setup",
-    "start": "cd backend && node dist/src/index.js"
+    "start": "cd backend && node dist/index.js"
   },
   "engines": {
     "node": ">=18"
