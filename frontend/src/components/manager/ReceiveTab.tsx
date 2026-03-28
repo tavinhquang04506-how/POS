@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import * as XLSX from 'xlsx';
 import { UploadCloud, FileSpreadsheet, Trash2 } from 'lucide-react';
 
@@ -18,7 +18,7 @@ const ReceiveTab = () => {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    axios.get('/api/products', { headers: { Authorization: `Bearer ${token}` }})
+    api.get('/api/products')
       .then(res => setProducts(res.data));
   }, [token]);
 
@@ -26,7 +26,7 @@ const ReceiveTab = () => {
   const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('/api/inventory/receive', form, { headers: { Authorization: `Bearer ${token}` }});
+      await api.post('/api/inventory/receive', form);
       alert('Nhập hàng thành công! Đã lên kệ lô FEFO mới.');
       setForm({ MaSP: '', SoLuongNhap: '', GiaNhap: '', HanSuDung: '' });
     } catch (e) { alert('Lỗi nhập hàng'); }
@@ -71,7 +71,7 @@ const ReceiveTab = () => {
     if (excelData.length === 0) return alert('Chưa có dữ liệu hợp lệ để import!');
     setIsProcessing(true);
     try {
-      const res = await axios.post('/api/inventory/import-excel', { items: excelData }, { headers: { Authorization: `Bearer ${token}` }});
+      const res = await api.post('/api/inventory/import-excel', { items: excelData });
       alert(`Nhập hàng thành công! Đã xử lý ${res.data.count} mặt hàng.`);
       handleClearExcel();
     } catch (e: any) {

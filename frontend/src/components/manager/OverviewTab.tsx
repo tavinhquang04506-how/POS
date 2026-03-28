@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import { DollarSign, FileText, RefreshCcw, TrendingUp, AlertTriangle, AlertCircle, Calendar } from 'lucide-react';
 
 const OverviewTab = () => {
@@ -21,10 +21,8 @@ const OverviewTab = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const headers = { Authorization: `Bearer ${token}` };
-        
         // 1. Fetch Revenue data to calculate today's metrics
-        const revenueRes = await axios.get('/api/reports/revenue', { headers });
+        const revenueRes = await api.get('/api/reports/revenue');
         const todayStr = new Date().toDateString();
         
         let revenueToday = 0;
@@ -61,8 +59,8 @@ const OverviewTab = () => {
 
         // 2. Fetch Alerts using new inventory APIs
         const [lowStockRes, expiringRes] = await Promise.all([
-          axios.get('/api/inventory?lowstock=10', { headers }),
-          axios.get('/api/inventory?expiring=7', { headers })
+          api.get('/api/inventory?lowstock=10'),
+          api.get('/api/inventory?expiring=7')
         ]);
 
         // Using Set to get unique products for low stock across batches

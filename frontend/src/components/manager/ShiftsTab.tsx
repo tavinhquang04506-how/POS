@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import * as XLSX from 'xlsx';
 import { Search, Download } from 'lucide-react';
 
@@ -11,7 +11,7 @@ const ShiftsTab = () => {
   useEffect(() => {
     const fetchShifts = async () => {
       try {
-        const res = await axios.get('/api/shifts', { headers: { Authorization: `Bearer ${token}` }});
+        const res = await api.get('/api/shifts');
         setShifts(res.data);
       } catch (e) { console.error(e); }
     };

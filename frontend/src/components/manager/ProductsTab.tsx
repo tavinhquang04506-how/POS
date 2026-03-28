@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import { PackagePlus, Edit2, Trash2, Search } from 'lucide-react';
 
 const ProductsTab = () => {
@@ -16,8 +16,8 @@ const ProductsTab = () => {
   const fetchData = async () => {
     try {
       const [resP, resC] = await Promise.all([
-        axios.get('/api/products', { headers: { Authorization: `Bearer ${token}` }}),
-        axios.get('/api/categories', { headers: { Authorization: `Bearer ${token}` }})
+        api.get('/api/products'),
+        api.get('/api/categories')
       ]);
       setProducts(resP.data);
       setCategories(resC.data);
@@ -28,9 +28,9 @@ const ProductsTab = () => {
     e.preventDefault();
     try {
       if (editingProd.MaSP) {
-        await axios.put(`/api/products/${editingProd.MaSP}`, editingProd, { headers: { Authorization: `Bearer ${token}` }});
+        await api.put(`/api/products/${editingProd.MaSP}`, editingProd);
       } else {
-        await axios.post('/api/products', editingProd, { headers: { Authorization: `Bearer ${token}` }});
+        await api.post('/api/products', editingProd);
       }
       setEditingProd(null);
       fetchData();
@@ -40,7 +40,7 @@ const ProductsTab = () => {
   const handleDelete = async (id: number) => {
     if(!window.confirm('Xóa sản phẩm này? Chú ý: Cẩn thận dữ liệu hóa đơn cũ bị mồ côi.')) return;
     try {
-      await axios.delete(`/api/products/${id}`, { headers: { Authorization: `Bearer ${token}` }});
+      await api.delete(`/api/products/${id}`);
       fetchData();
     } catch(e) { alert('Không thể xóa sp (vướng hóa đơn/lô hàng)'); }
   };

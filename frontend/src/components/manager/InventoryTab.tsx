@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import * as XLSX from 'xlsx';
 import { Search, Download } from 'lucide-react';
 
@@ -10,9 +10,7 @@ const InventoryTab = ({ products: _unused }: { products?: any[] }) => {
 
   useEffect(() => {
     if (token) {
-      axios.get('/api/inventory', {
-        headers: { Authorization: `Bearer ${token}` }
-      }).then(res => setBatches(res.data)).catch(console.error);
+      api.get('/api/inventory').then(res => setBatches(res.data)).catch(console.error);
     }
   }, [token]);
 

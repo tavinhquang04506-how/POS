@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import * as XLSX from 'xlsx';
 import { Download, Search } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -21,7 +21,7 @@ const RevenueTab = () => {
 
   const fetchReports = async (page: number) => {
     try {
-      const res = await axios.get(`/api/reports/revenue?page=${page}&limit=10`, { headers: { Authorization: `Bearer ${token}` }});
+      const res = await api.get(`/api/reports/revenue?page=${page}&limit=10`);
       setData(res.data);
       setInvoices(res.data.invoices);
       setReturns(res.data.returns);
@@ -30,7 +30,7 @@ const RevenueTab = () => {
         setTotalPages(res.data.pagination.totalPages);
       }
       
-      const resDaily = await axios.get('/api/reports/revenue-daily?days=7', { headers: { Authorization: `Bearer ${token}` }});
+      const resDaily = await api.get('/api/reports/revenue-daily?days=7');
       setChartData(resDaily.data);
     } catch (e) { console.error(e); }
   };

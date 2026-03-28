@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { ShoppingCart, LogOut, Search, Trash2, UserCheck, Phone, CreditCard, Wallet, QrCode, Banknote, Coffee, Printer, Plus, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -87,7 +87,7 @@ const CashierPOS = () => {
 
   const fetchAllProducts = async () => {
     try {
-      const res = await axios.get('/api/products', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.get('/api/products');
       setAllProducts(res.data);
     } catch (err) { console.error('Failed to fetch products'); }
   };
@@ -113,7 +113,7 @@ const CashierPOS = () => {
 
   const checkActiveShift = async () => {
     try {
-      const res = await axios.get('/api/shifts/current', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.get('/api/shifts/current');
       if (res.data.shift) {
         setShift(res.data.shift);
         setIsShiftModalOpen(false);
@@ -126,7 +126,7 @@ const CashierPOS = () => {
   const handleOpenShift = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/api/shifts/open', { TienDauCa: Number(tienDauCa) }, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.post('/api/shifts/open', { TienDauCa: Number(tienDauCa) });
       setShift(res.data);
       setIsShiftModalOpen(false);
     } catch (err) { alert('Cannot open shift'); }
@@ -135,7 +135,7 @@ const CashierPOS = () => {
   const handleCloseShift = async () => {
     if (!window.confirm("Bạn có chắc chắn muốn chốt ca làm việc này? Khách hàng sẽ không thể thanh toán tiếp.")) return;
     try {
-      const res = await axios.post('/api/shifts/close', {}, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.post('/api/shifts/close', {});
       setClosedShiftData(res.data);
       setIsClosingShift(true);
       setShift(null);
@@ -216,7 +216,7 @@ const CashierPOS = () => {
     }
     try {
       const safeBarcode = encodeURIComponent(trimmed);
-      const res = await axios.get(`/api/products/${safeBarcode}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.get(`/api/products/${safeBarcode}`);
       const product = res.data;
       if (Array.isArray(product) || !product.MaSP) throw new Error('Barcode không tồn tại hoặc lỗi dữ liệu.');
 
@@ -234,7 +234,7 @@ const CashierPOS = () => {
     setIsRegistering(false);
     if (!phone) return;
     try {
-      const res = await axios.get(`/api/customers/${phone}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.get(`/api/customers/${phone}`);
       setCustomer(res.data);
     } catch (err) {
       setCustomerError('SĐT này chưa đăng ký thành viên.');
@@ -245,7 +245,7 @@ const CashierPOS = () => {
   const handleRegisterCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/api/customers', { HoTen: newCustomerName, SDT: phone }, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.post('/api/customers', { HoTen: newCustomerName, SDT: phone });
       setCustomer(res.data);
       setIsRegistering(false);
       setCustomerError('');
@@ -275,7 +275,7 @@ const CashierPOS = () => {
         phuongThucThanhToan: paymentMethod
       };
       
-      const res = await axios.post('/api/checkout', reqPayload, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.post('/api/checkout', reqPayload);
       
       setLastInvoice({
         id: res.data.MaHD,
@@ -304,7 +304,7 @@ const CashierPOS = () => {
   const handleLookupInvoice = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.get(`/api/returns/invoice/${returnInvoiceId}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.get(`/api/returns/invoice/${returnInvoiceId}`);
       const invData = res.data;
       setReturnInvoiceData(invData);
       
@@ -343,7 +343,7 @@ const CashierPOS = () => {
         Items: itemsToReturn.map(i => ({ MaSP: i.MaSP, SoLuongTra: i.SoLuongTra, DonGiaHoan: i.DonGiaHoan }))
       };
       
-      const res = await axios.post('/api/returns', payload, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.post('/api/returns', payload);
       
       setLastRefund({
         id: res.data.MaPTH,

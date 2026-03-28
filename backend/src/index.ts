@@ -17,13 +17,15 @@ import { authenticate, authorizeRoles, authorizePermissions } from './middleware
 import path from 'path';
 import fs from 'fs';
 
-// Database URL - dùng biến môi trường, không cần Electron
-process.env.DATABASE_URL = process.env.DATABASE_URL || 'file:./dev.db';
+// Database URL - set via environment variable (Supabase PostgreSQL)
 
 export const prisma = new PrismaClient();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
+  credentials: true
+}));
 app.use(express.json());
 
 app.post('/api/auth/login', authController.login);

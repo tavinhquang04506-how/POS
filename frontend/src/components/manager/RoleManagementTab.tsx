@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import { ShieldAlert, Check } from 'lucide-react';
 
 const RoleManagementTab = () => {
@@ -16,8 +16,8 @@ const RoleManagementTab = () => {
   const fetchData = async () => {
     try {
       const [roleRes, permRes] = await Promise.all([
-        axios.get('/api/rbac/roles', { headers: { Authorization: `Bearer ${token}` }}),
-        axios.get('/api/rbac/permissions', { headers: { Authorization: `Bearer ${token}` }})
+        api.get('/api/rbac/roles'),
+        api.get('/api/rbac/permissions')
       ]);
       setRoles(roleRes.data);
       setAllPermissions(permRes.data);
@@ -45,9 +45,8 @@ const RoleManagementTab = () => {
 
   const handleSave = async () => {
     try {
-      await axios.put(`/api/rbac/roles/${activeRole.MaRole}/permissions`, 
-        { permissions: localPerms },
-        { headers: { Authorization: `Bearer ${token}` }}
+      await api.put(`/api/rbac/roles/${activeRole.MaRole}/permissions`, 
+        { permissions: localPerms }
       );
       alert('Đã cập nhật phân quyền thành công! Người dùng liên quan sẽ nhận quyền mới ở lần Login kế tiếp.');
       fetchData(); 

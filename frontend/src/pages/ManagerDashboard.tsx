@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import { LogOut, Activity, BarChart3, Package, Truck, Layers, Users, Star, Clock, ShieldCheck, RotateCcw } from 'lucide-react';
 
 import OverviewTab from '../components/manager/OverviewTab';
@@ -63,11 +63,11 @@ const ManagerDashboard = () => {
   useEffect(() => {
     // Fetch common data that might be needed across tabs
     if (token) {
-      axios.get('/api/products', { headers: { Authorization: `Bearer ${token}` } })
+      api.get('/api/products')
         .then(res => setProducts(res.data)).catch(console.error);
-      axios.get('/api/tiers', { headers: { Authorization: `Bearer ${token}` } })
+      api.get('/api/tiers')
         .then(res => setTiers(res.data)).catch(console.error);
-      axios.get('/api/inventory/alerts', { headers: { Authorization: `Bearer ${token}` } })
+      api.get('/api/inventory/alerts')
         .then(res => setAlerts(res.data)).catch(console.error);
     }
   }, [token, activeTab]); // Refresh slightly on tab change for simplicity
@@ -84,9 +84,8 @@ const ManagerDashboard = () => {
       return setPasswordMsg({ type: 'error', text: 'Mật khẩu xác nhận không khớp!' });
     }
     try {
-      const res = await axios.put('/api/auth/change-password',
-        { oldPassword, newPassword },
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await api.put('/api/auth/change-password',
+        { oldPassword, newPassword }
       );
       setPasswordMsg({ type: 'success', text: res.data.message });
       setTimeout(() => {
@@ -184,7 +183,7 @@ const ManagerDashboard = () => {
           {activeTab === 'products' && <ProductsTab />}
           {activeTab === 'customers' && <CustomersTab />}
           {activeTab === 'tiers' && <TiersTab tiers={tiers} fetchTiers={() => {
-            axios.get('/api/tiers', { headers: { Authorization: `Bearer ${token}` } }).then(res => setTiers(res.data))
+            api.get('/api/tiers').then(res => setTiers(res.data))
           }} />}
           {activeTab === 'shifts' && <ShiftsTab />}
           {activeTab === 'returns' && <ReturnHistoryTab />}

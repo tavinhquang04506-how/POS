@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import { LogOut, Star, ShoppingBag, Clock, Trophy } from 'lucide-react';
 
 const CustomerDashboard = () => {
@@ -11,13 +11,9 @@ const CustomerDashboard = () => {
 
   useEffect(() => {
     if (token) {
-      axios.get('/api/customers/me/history', {
-        headers: { Authorization: `Bearer ${token}` }
-      }).then(res => setHistory(res.data)).catch(console.error);
+      api.get('/api/customers/me/history').then(res => setHistory(res.data)).catch(console.error);
 
-      axios.get('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      }).then(res => setProfile(res.data)).catch(console.error);
+      api.get('/api/auth/me').then(res => setProfile(res.data)).catch(console.error);
     }
   }, [token]);
 

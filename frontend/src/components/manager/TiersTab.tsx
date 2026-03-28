@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Edit3, Trash2, Plus } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api';
 
 const TiersTab = ({ tiers, fetchTiers }: { tiers: any[], fetchTiers: () => void }) => {
   const [editingTier, setEditingTier] = useState<any>(null);
@@ -10,9 +10,9 @@ const TiersTab = ({ tiers, fetchTiers }: { tiers: any[], fetchTiers: () => void 
     e.preventDefault();
     try {
       if (editingTier.MaHang) {
-        await axios.put(`/api/tiers/${editingTier.MaHang}`, editingTier, { headers: { Authorization: `Bearer ${token}` }});
+        await api.put(`/api/tiers/${editingTier.MaHang}`, editingTier);
       } else {
-        await axios.post('/api/tiers', editingTier, { headers: { Authorization: `Bearer ${token}` }});
+        await api.post('/api/tiers', editingTier);
       }
       setEditingTier(null);
       fetchTiers();
@@ -22,7 +22,7 @@ const TiersTab = ({ tiers, fetchTiers }: { tiers: any[], fetchTiers: () => void 
   const handleDeleteTier = async (id: number) => {
     if(!window.confirm('Bạn có chắc chắn muốn xóa hạng này?')) return;
     try {
-      await axios.delete(`/api/tiers/${id}`, { headers: { Authorization: `Bearer ${token}` }});
+      await api.delete(`/api/tiers/${id}`);
       fetchTiers();
     } catch(e) { alert('Xóa hạng thất bại'); }
   };

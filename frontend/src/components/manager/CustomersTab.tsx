@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import * as XLSX from 'xlsx';
 import { Search, Download } from 'lucide-react';
 
@@ -9,7 +9,7 @@ const CustomersTab = () => {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    axios.get('/api/customers', { headers: { Authorization: `Bearer ${token}` }})
+    api.get('/api/customers')
       .then(res => setCustomers(res.data));
   }, [token]);
 

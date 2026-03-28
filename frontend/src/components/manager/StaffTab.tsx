@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import { Edit3, Trash2, Plus, Search } from 'lucide-react';
 
 const StaffTab = () => {
@@ -16,14 +16,14 @@ const StaffTab = () => {
 
   const fetchStaff = async () => {
     try {
-      const res = await axios.get('/api/staff', { headers: { Authorization: `Bearer ${token}` }});
+      const res = await api.get('/api/staff');
       setStaff(res.data);
     } catch (e) { console.error(e); }
   };
 
   const fetchRoles = async () => {
     try {
-      const res = await axios.get('/api/rbac/roles', { headers: { Authorization: `Bearer ${token}` }});
+      const res = await api.get('/api/rbac/roles');
       setRoles(res.data);
     } catch (e) { console.error(e); }
   };
@@ -32,9 +32,9 @@ const StaffTab = () => {
     e.preventDefault();
     try {
       if (editingStaff.MaNV) {
-        await axios.put(`/api/staff/${editingStaff.MaNV}`, editingStaff, { headers: { Authorization: `Bearer ${token}` }});
+        await api.put(`/api/staff/${editingStaff.MaNV}`, editingStaff);
       } else {
-        await axios.post('/api/staff', editingStaff, { headers: { Authorization: `Bearer ${token}` }});
+        await api.post('/api/staff', editingStaff);
       }
       setEditingStaff(null);
       fetchStaff();
@@ -44,7 +44,7 @@ const StaffTab = () => {
   const handleDelete = async (id: number) => {
     if(!window.confirm('Cảnh báo: Nếu NV đã chốt ca/bán hóa đơn, việc xóa có thể crash Data. Nên vô hiệu hóa thay vì Delete. Tiếp tục xóa cứng?')) return;
     try {
-      await axios.delete(`/api/staff/${id}`, { headers: { Authorization: `Bearer ${token}` }});
+      await api.delete(`/api/staff/${id}`);
       fetchStaff();
     } catch(e) { alert('Không thể xóa nhân viên này!'); }
   };

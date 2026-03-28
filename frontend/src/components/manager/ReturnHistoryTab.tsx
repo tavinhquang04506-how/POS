@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import * as XLSX from 'xlsx';
 import { RotateCcw, Download } from 'lucide-react';
 import Pagination from '../common/Pagination';
@@ -13,9 +13,7 @@ const ReturnHistoryTab = () => {
   const fetchReturns = async (page: number) => {
     if (token) {
       try {
-        const res = await axios.get(`/api/returns?page=${page}&limit=10`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await api.get(`/api/returns?page=${page}&limit=10`);
         if (res.data.data) {
           setReturns(res.data.data);
           setCurrentPage(res.data.pagination.page);

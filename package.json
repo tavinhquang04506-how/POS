@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "description": "POS Supermarket System",
   "scripts": {
-    "install:all": "cd backend && npm install --include=dev && cd ../frontend && npm install --include=dev",
-    "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend && npx tsc",
-    "prisma:setup": "cd backend && npx prisma generate && npx prisma db push && npx prisma db seed",
-    "build": "npm run install:all && npm run build:frontend && npm run build:backend && npm run prisma:setup",
-    "start": "cd backend && node dist/index.js"
+    "dev:backend": "cd backend && npm run start",
+    "dev:frontend": "cd frontend && npm run dev",
+    "prisma:push": "cd backend && npx prisma db push",
+    "prisma:seed": "cd backend && npx prisma db seed",
+    "prisma:setup": "cd backend && npx prisma generate && npx prisma db push && npx prisma db seed"
   },
   "engines": {
     "node": ">=18"
